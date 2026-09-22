@@ -34,7 +34,7 @@ function TrackShipment() {
       setTrackingData(null);
 
       const response = await axios.get(
-        `http://localhost:5000/api/tracking/${searchId.trim()}`,
+        `${import.meta.env.VITE_API_URL}/api/tracking/${searchId.trim()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

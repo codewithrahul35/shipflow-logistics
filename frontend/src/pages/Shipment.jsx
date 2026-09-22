@@ -27,7 +27,7 @@ function Shipment() {
       }
 
       const response = await axios.get(
-        "http://localhost:5000/api/shipments",
+        `${import.meta.env.VITE_API_URL}/api/shipments`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -113,7 +113,7 @@ function Shipment() {
       const token = localStorage.getItem("token");
 
       const response = await axios.put(
-        `http://localhost:5000/api/shipments/${editingShipment._id}`,
+       `${import.meta.env.VITE_API_URL}/api/shipments/${editingShipment._id}`,
         editForm,
         {
           headers: {
