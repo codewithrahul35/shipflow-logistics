@@ -9,7 +9,7 @@ const app = express();
 connectDB();
 
 app.use(cors({
-     origin: true,
+     origin: "https://shipflow-logistics.vercel.app",
     credentials: true
 }));
 app.use(express.json());
