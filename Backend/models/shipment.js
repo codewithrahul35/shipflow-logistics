@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 
 const shipmentSchema = new mongoose.Schema({
-    trackingId:{
+    trackingId: {
         type: String,
         required: true,
         unique: true
     },
 
-    consignmentId:{
+    consignmentId: {
         type: String,
         required: true,
         unique: true
     },
 
-    bookingDate:{
+    bookingDate: {
         type: Date,
         required: true
     },
@@ -25,8 +25,8 @@ const shipmentSchema = new mongoose.Schema({
 
     senderPhone: {
         type: String,
-         required: true,
-         match: /^[6-9]\d{9}$/
+        required: true,
+        match: /^[6-9]\d{9}$/
     },
 
     receiverName: {
@@ -40,34 +40,41 @@ const shipmentSchema = new mongoose.Schema({
         match: /^[6-9]\d{9}$/
     },
 
-    origin:{
+    origin: {
         type: String,
         required: true
     },
 
-    destination:{
+    destination: {
         type: String,
         required: true
     },
 
     totalBoxes: {
-         type: Number,
-         required: true,
-         min: 1
+        type: Number,
+        required: true,
+        min: 1
     },
 
     totalWeight: {
         type: Number,
         required: true,
-        min:0.01
+        min: 0.01
     },
 
-    description:{
+    description: {
         type: String
     },
-    status:{
+
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    status: {
         type: String,
-        enum:[
+        enum: [
+            "Pending",
             "Booked",
             "Pickup Assigned",
             "Picked Up",
@@ -79,30 +86,30 @@ const shipmentSchema = new mongoose.Schema({
             "Returned",
             "Failed Delivery"
         ],
-        default: "Booked"
+        default: "Pending"
     },
 
-    expectedDeliveryDate:{
-        type:Date
+    expectedDeliveryDate: {
+        type: Date
     },
 
-    actualDeliveryDate:{
-    type: Date
+    actualDeliveryDate: {
+        type: Date
     },
 
-    codAmount:{
+    codAmount: {
         type: Number,
         default: 0,
         min: 0
     },
 
-    paymentStatus:{
-        type:String,
-        enum: ["Pending","Paid","Failed"],
+    paymentStatus: {
+        type: String,
+        enum: ["Pending", "Paid", "Failed"],
         default: "Pending"
     }
-},{
+}, {
     timestamps: true
 });
-const Shipment = mongoose.model("Shipment",shipmentSchema);
-module.exports= Shipment;
+const Shipment = mongoose.model("Shipment", shipmentSchema);
+module.exports = Shipment;

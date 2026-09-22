@@ -6,19 +6,17 @@ const {
 } = require("../utils/shipmentStatus.js");
 
 const createTrackingEvent = async (req, res) => {
-
     const session = await mongoose.startSession();
 
     try {
-
         session.startTransaction();
 
         const shipment = await Shipment.findOne({
-            trackingId: req.body.trackingId
+            trackingId: req.body.trackingId,
+            createdBy: req.user.id
         }).session(session);
 
         if (!shipment) {
-
             await session.abortTransaction();
 
             return res.status(404).json({
@@ -28,7 +26,6 @@ const createTrackingEvent = async (req, res) => {
         }
 
         if (shipment.consignmentId !== req.body.consignmentId) {
-
             await session.abortTransaction();
 
             return res.status(400).json({
@@ -45,7 +42,6 @@ const createTrackingEvent = async (req, res) => {
         }).session(session);
 
         if (existingEvent) {
-
             await session.abortTransaction();
 
             return res.status(409).json({
@@ -60,7 +56,6 @@ const createTrackingEvent = async (req, res) => {
         );
 
         if (!validTransition) {
-
             await session.abortTransaction();
 
             return res.status(400).json({
@@ -96,7 +91,6 @@ const createTrackingEvent = async (req, res) => {
         });
 
     } catch (error) {
-
         await session.abortTransaction();
 
         res.status(500).json({
@@ -106,22 +100,29 @@ const createTrackingEvent = async (req, res) => {
         });
 
     } finally {
-
         await session.endSession();
-
     }
 };
 
 const getTrackingEvents = async (req, res) => {
-
     try {
+        const { trackingId } = req.params;
 
         const shipment = await Shipment.findOne({
-            trackingId: req.params.trackingId
+            $and: [
+                {
+                    $or: [
+                        { trackingId: trackingId },
+                        { consignmentId: trackingId }
+                    ]
+                },
+                {
+                    createdBy: req.user.id
+                }
+            ]
         });
 
         if (!shipment) {
-
             return res.status(404).json({
                 success: false,
                 message: "Shipment not found"
@@ -129,37 +130,41 @@ const getTrackingEvents = async (req, res) => {
         }
 
         const trackingEvents = await TrackingEvent.find({
-            trackingId: req.params.trackingId
+            trackingId: shipment.trackingId
         }).sort({
             timestamp: 1
         });
 
         res.status(200).json({
-
             success: true,
-
             shipment: {
                 trackingId: shipment.trackingId,
                 consignmentId: shipment.consignmentId,
-                currentStatus: shipment.status,
+                bookingDate: shipment.bookingDate,
+                senderName: shipment.senderName,
+                senderPhone: shipment.senderPhone,
+                receiverName: shipment.receiverName,
+                receiverPhone: shipment.receiverPhone,
                 origin: shipment.origin,
                 destination: shipment.destination,
+                totalBoxes: shipment.totalBoxes,
+                totalWeight: shipment.totalWeight,
+                description: shipment.description,
+                currentStatus: shipment.status,
                 expectedDeliveryDate: shipment.expectedDeliveryDate,
-                actualDeliveryDate: shipment.actualDeliveryDate
+                actualDeliveryDate: shipment.actualDeliveryDate,
+                codAmount: shipment.codAmount,
+                paymentStatus: shipment.paymentStatus
             },
-
             timeline: trackingEvents
-
         });
 
     } catch (error) {
-
         res.status(500).json({
             success: false,
             message: "Failed to fetch tracking information",
             error: error.message
         });
-
     }
 };
 
@@ -167,3 +172,4 @@ module.exports = {
     createTrackingEvent,
     getTrackingEvents
 };
+

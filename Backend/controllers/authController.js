@@ -99,7 +99,7 @@ const loginUser = async(req,res)=>{
 
         const token = jwt.sign(
             {
-                is: user._id,
+                id: user._id,
                 role: user.role
             },
 
